@@ -1,152 +1,95 @@
-# NIST Open-Source Software Repository Template
+# Grain Size Library 
 
-Use of GitHub by NIST employees for government work is subject to
-the [Rules of Behavior for GitHub][gh-rob]. This is the
-recommended template for NIST employees, since it contains
-required files with approved text. For details, please consult
-the Office of Data & Informatics' [Quickstart Guide to GitHub at
-NIST][gh-odi].
+Accelerate and automate the process of segmenting images of microscopic 
+(metallic) grain boundaries, as well as measuring grain sizes using intercept
+methods.
 
-Please click on the green **Use this template** button above to
-create a new repository under the [usnistgov][gh-nst]
-organization for your own open-source work. Please do not "fork"
-the repository directly, and do not create the templated
-repository under your individual account.
+Keywords: grain size, python, segmentation, image processing
 
-The key files contained in this repository -- which will also
-appear in templated copies -- are listed below, with some things
-to know about each.
 
----
+## Overview
 
-## README
+The Grain Size Library is a set of Python scripts that provides tools to segment and measure metallic grains, which are traditionally observed in metals with an optical microscope after polishing and etching a metal sample. Additionally, microstructures measured using common scanning electron microscope (SEM) techniques are also suitable for this library, as will be shown below. Historically, measuring grain size has been a manual process where an experimentalist counts grains or grain boundary intersections. In present day, there are automated solutions, many of which require specialized microscropes and/or commercial software. While computational algorithms are mentioned in the literature related to automating the process of measuring grain size, there is scant open-source software available to the public that performs this process. The Grain Size Library aims to fill this niche by providing free and open-source software (FOSS) that offers batch image processing specific to measuring metallic grain sizes. After choosing appropriate parameters, hundreds of images can be automatically processed using batch scripts in just minutes.
 
-Each repository will contain a plain-text [README file][wk-rdm],
-preferably formatted using [GitHub-flavored Markdown][gh-mdn] and
-named `README.md` (this file) or `README`.
+The Grain Size Library separates the process of measuring grain size into two steps: 1) the first step is to segment (or binarize) the selected microstructure image in order to isolate the grain boundaries, and 2) the second step is to calculate various statistics about the grain sizes of a segmented microstructure image using one of two types intercept patterns. Examples of scripts that demonstrate how to segment an image, either interactively or as a batch command, can be found in the examples folder, "ex_segmentation". Additionally, the "ex_grain_intercept" folder contains examples of scripts that calculate grain sizes using different intercept patterns, which are described in more detail in [ASTM E112](https://www.astm.org/standards/e112).
 
-Per the [GitHub ROB][gh-rob] and [NIST Suborder 1801.02][nist-s-1801-02],
-your README should contain:
 
-1. Software or Data description
-   - Statements of purpose and maturity
-   - Description of the repository contents
-   - Technical installation instructions, including operating
-     system or software dependencies
-1. Contact information
-   - PI name, NIST OU, Division, and Group names
-   - Contact email address at NIST
-   - Details of mailing lists, chatrooms, and discussion forums,
-     where applicable
-1. Related Material
-   - URL for associated project on the NIST website or other Department
-     of Commerce page, if available
-   - References to user guides if stored outside of GitHub
-1. Directions on appropriate citation with example text
-1. References to any included non-public domain software modules,
-   and additional license language if needed, *e.g.* [BSD][li-bsd],
-   [GPL][li-gpl], or [MIT][li-mit]
+## Example of Segmentation and Grain Size Measurement
 
-The more detailed your README, the more likely our colleagues
-around the world are to find it through a Web search. For general
-advice on writing a helpful README, please review
-[*Making Readmes Readable*][18f-guide] from 18F and Cornell's
-[*Guide to Writing README-style Metadata*][cornell-meta].
+An example of segmenting an image and measuring grain size using the Grain Size Library is shown next; this example, and the scripts used to calculate the results, can also be found in the example folders: "ex_segmentation" and "ex_grain_intercept". The image chosen for this example was taken using backscatter electrons (BSE) via a scanning electron microscope (SEM). The microstructure corresponds Ti-6Al-4V, which is an alpha-beta titanium alloy.
 
-## LICENSE
+The first step is to segment the image and isolate the grain boundaries. This can be done either interactively or using batch processing. In general, the interactive image processing script will be easier to find good segmentation parameters when processing an image for the first time. Afterwards, if there are more images taken with the same nominal measurement parameters, the same segmentation parameters will usually be acceptable. Therefore, the remaining images can be safely segmented using a batch processing script. 
 
-Each repository will contain a plain-text file named `LICENSE.md`
-or `LICENSE` that is phrased in compliance with the Public Access
-to NIST Research [*Copyright, Fair Use, and Licensing Statement
-for SRD, Data, and Software*][nist-open], which provides
-up-to-date official language for each category in a blue box.
+The original SEM image of the Ti-6Al-4V microstructure is shown below. Alongside the SEM image is a screenshot of one of the interactive graphical user-interfaces (GUI) used in the process of segmenting the image. In this case, the interactive GUI corresponds to a nonlocal means denoising filter that removes noise and streaking throughout the SEM image. 
 
-- The version of [LICENSE.md](LICENSE.md) included in this
-  repository is approved for use.
-- Updated language on the [Licensing Statement][nist-open] page
-  supersedes the copy in this repository. You may transcribe the
-  language from the appropriate "blue box" on that page into your
-  README.
+![Left: An SEM image of alpha lathes in Ti-6Al-4V. Right: An interactive graphical user interface to preview a nonlocal means denoising filter to the SEM image.](./readme_resources/nonlocal_means_interactive_gui.png "Interactive GUI for nonlocal means denoising")
 
-If your repository includes any software or data that is licensed
-by a third party, create a separate file for third-party licenses
-(`THIRD_PARTY_LICENSES.md` is recommended) and include copyright
-and licensing statements in compliance with the conditions of
-those licenses.
+The final segmentation of the Ti-6Al-4V image is shown below; the grain boundaries are denoted by white pixels while everything is black. This segmentation was achieved using seven image processing steps: 1) nonlocal means denoising, 2) image sharpening via an unsharp mask, 3) adaptive thresholding, 4) a morphological closing operation, 5) filling small "holes", 6) removing small islands of pixel, and 7) skeletonization. In this example, each step of the segmentation process was done using an interactive GUI. In general, additional or fewer steps can be utilized as needed.  
 
-## CODEOWNERS
+![Left: An SEM image of alpha lathes in Ti-6Al-4V. Right: A binarized version of the same SEM image, now with the grain boundaries denoted by white pixels.](./readme_resources/sem_ti_6al_4v_segmented_comparison.png "Segmentation of an SEM image")
 
-This template repository includes a file named
-[CODEOWNERS](CODEOWNERS), which visitors can view to discover
-which GitHub users are "in charge" of the repository. More
-crucially, GitHub uses it to assign reviewers on pull requests.
-GitHub documents the file (and how to write one) [here][gh-cdo].
+After segmentation, the next step was to overlay the binarized image with an intercept pattern and calculate the intersections between the pattern and the grain boundaries. Currently, two patterns are available in Grain Size Library: 1) the first is a circle-based intercept pattern based on ASTM E112, and 2) the second is a gridded line pattern. Examples of both of these intercept patterns are shown below. Specifically for the gridded line pattern, the user has full control over the range of angles of the lines which simplifies the process of analyzing grain sizes as a function of rotation (i.e., grain size anisotropy).
 
-***Please update that file*** to point to your own account or
-team, so that the [Open-Source Team][gh-ost] doesn't get spammed
-with spurious review requests. *Thanks!*
+![Left: A segmented SEM image of Ti-6Al-4V with a circle-and-line intercept pattern overlaid. Right: A box plot of the measured grain sizes (or segment lengths)](./readme_resources/sem_ti_6al_4v_box_plot_e112.png "Box plot of the ASTM E112 intercept pattern")
 
-## CODEMETA
+![A picture of a segmented SEM image of Ti-6Al-4V with many lines overlaid on top in different directions which are used to measure grain size (i.e., line intercepts) in different directions. Also shown is a box plot of the grain](./readme_resources/sem_ti_6al_4v_box_plot_line_grid_flattened2.png "Measuring grain size using rotated line intercepts")
 
-Project metadata is captured in `CODEMETA.yaml`, used by the NIST
-Software Portal to sort your work under the appropriate thematic
-homepage. ***Please update this file*** with the appropriate
-"theme" and "category" for your code/data/software. The Tier 1
-themes are:
+The provided example scripts in "ex_grain_intercept" will save the overlaid intercept pattern in a new image so that the user can verify that the pattern is acceptable for his or her needs. Furthermore, every intercept (i.e., line segment) between grain boundaries is recorded and saved in a .csv file. The user can then perfrom a more detailed statistical analysis of the grain size distribution, if needed. 
 
-- [Advanced communications](https://www.nist.gov/advanced-communications)
-- [Bioscience](https://www.nist.gov/bioscience)
-- [Buildings and Construction](https://www.nist.gov/buildings-construction)
-- [Chemistry](https://www.nist.gov/chemistry)
-- [Electronics](https://www.nist.gov/electronics)
-- [Energy](https://www.nist.gov/energy)
-- [Environment](https://www.nist.gov/environment)
-- [Fire](https://www.nist.gov/fire)
-- [Forensic Science](https://www.nist.gov/forensic-science)
-- [Health](https://www.nist.gov/health)
-- [Information Technology](https://www.nist.gov/information-technology)
-- [Infrastructure](https://www.nist.gov/infrastructure)
-- [Manufacturing](https://www.nist.gov/manufacturing)
-- [Materials](https://www.nist.gov/materials)
-- [Mathematics and Statistics](https://www.nist.gov/mathematics-statistics)
-- [Metrology](https://www.nist.gov/metrology)
-- [Nanotechnology](https://www.nist.gov/nanotechnology)
-- [Neutron research](https://www.nist.gov/neutron-research)
-- [Performance excellence](https://www.nist.gov/performance-excellence)
-- [Physics](https://www.nist.gov/physics)
-- [Public safety](https://www.nist.gov/public-safety)
-- [Resilience](https://www.nist.gov/resilience)
-- [Standards](https://www.nist.gov/standards)
-- [Transportation](https://www.nist.gov/transportation)
 
----
+## Installation
 
-[usnistgov/opensource-repo][gh-osr] is developed and maintained
-by the [opensource-team][gh-ost], principally:
+The Grain Size Library is a Python library is dependent on existing libraries like Numpy, SciPy, and SciKit-Image. The list of specific dependencies, and how to install them in a Python environment, are described in the ReadMe file found in the "dependencies" folder. 
 
-- Gretchen Greene, @GRG2
-- Yannick Congo, @faical-yannick-congo
-- Trevor Keller, @tkphd
+There are also a number of custom Python modules that the Grain Size Library also depends on which are located in the "imppy3d_functions" folder. At the top of each Python script, there is a line of code that adds a system path string to the system that points to the "imppy3d_functions" folder,
 
-Please reach out with questions and comments.
+  `sys.path.insert(1, '../../imppy3d_functions')`
 
-<!-- References -->
+If the provided scripts are moved to a new directory relative to the "imppy3d_functions" folder, be sure to also update this path variable to the new relative location of the "imppy3d_functions" folder.
 
-[18f-guide]: https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readmes-readable.md
-[cornell-meta]: https://data.research.cornell.edu/content/readme
-[gh-cdo]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
-[gh-mdn]: https://github.github.com/gfm/
-[gh-nst]: https://github.com/usnistgov
-[gh-odi]: https://odiwiki.nist.gov/ODI/GitHub.html
-[gh-osr]: https://github.com/usnistgov/opensource-repo/
-[gh-ost]: https://github.com/orgs/usnistgov/teams/opensource-team
-[gh-rob]: https://odiwiki.nist.gov/pub/ODI/GitHub/GHROB.pdf
-[gh-tpl]: https://github.com/usnistgov/carpentries-development/discussions/3
-[li-bsd]: https://opensource.org/licenses/bsd-license
-[li-gpl]: https://opensource.org/licenses/gpl-license
-[li-mit]: https://opensource.org/licenses/mit-license
-[nist-code]: https://code.nist.gov
-[nist-disclaimer]: https://www.nist.gov/open/license
-[nist-s-1801-02]: https://inet.nist.gov/adlp/directives/review-data-intended-publication
-[nist-open]: https://www.nist.gov/open/license#software
-[wk-rdm]: https://en.wikipedia.org/wiki/README
+
+## Support
+If you encounter any bugs or unintended behavior, please create an "Issue" and report a bug. You can also make a request for new features in this way. 
+
+For questions on how best to use Grain Size Library for a specific application, feel free
+to contact Dr. Newell Moser (see below).
+
+
+## Author
+
+### Lead developer: 
+* Dr. Newell Moser, NIST (newell.moser@nist.gov)
+
+
+## License
+
+NIST-developed software is provided by NIST as a public service. You may
+use, copy, and distribute copies of the software in any medium,
+provided that you keep intact this entire notice. You may improve,
+modify, and create derivative works of the software or any portion of
+the software, and you may copy and distribute such modifications or
+works. Modified works should carry a notice stating that you changed
+the software and should note the date and nature of any such change.
+Please explicitly acknowledge the National Institute of Standards and
+Technology as the source of the software. 
+
+NIST-developed software is expressly provided "AS IS." NIST MAKES NO
+WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT, OR ARISING BY
+OPERATION OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT,
+AND DATA ACCURACY. NIST NEITHER REPRESENTS NOR WARRANTS THAT THE
+OPERATION OF THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT
+ANY DEFECTS WILL BE CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY
+REPRESENTATIONS REGARDING THE USE OF THE SOFTWARE OR THE RESULTS
+THEREOF, INCLUDING BUT NOT LIMITED TO THE CORRECTNESS, ACCURACY,
+RELIABILITY, OR USEFULNESS OF THE SOFTWARE.
+
+You are solely responsible for determining the appropriateness of using
+and distributing the software and you assume all risks associated with
+its use, including but not limited to the risks and costs of program
+errors, compliance with applicable laws, damage to or loss of data,
+programs or equipment, and the unavailability or interruption of
+operation. This software is not intended to be used in any situation
+where a failure could cause risk of injury or damage to property. The
+software developed by NIST employees is not subject to copyright
+protection within the United States.
