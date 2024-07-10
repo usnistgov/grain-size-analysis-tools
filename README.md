@@ -1,4 +1,4 @@
-# Grain Size Analysis Tools 
+# Grain Size Analysis Tools (GSAT)
 
 Accelerate and automate the process of segmenting images of microscopic 
 (metallic) grain boundaries, as well as measuring grain sizes using intercept
