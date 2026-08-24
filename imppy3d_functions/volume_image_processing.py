@@ -11,7 +11,6 @@ from skimage.util import img_as_float32
 from skimage.util import img_as_float64
 
 from . import cv_driver_functions as drv
-from . import im3_processing as im3
         
 def pad_image_boundary(img_arr_in, cval_in=0, n_pad_in=1, quiet_in=False):
     """
@@ -1046,64 +1045,6 @@ def del_edge_particles_3D(imgs_bin_in, img_bound_in, scale_img=2.0):
                 num_erased += 1
 
     return [imgs_out, num_erased]
-
-
-def extract_sphere(img_arr_in, radius=None):
-    """
-    Creates a new image sequence of the same size and type as the input
-    image sequence, img_arr_in. The values in the returned image 
-    sequence, however, are only copied over if they lie within the 
-    sphere defined by the input radius. The sphere of copied intensities
-    is centered about the central indices of the image sequence.
-
-    ---- INPUT ARGUMENTS ---- 
-    [[[img_arr_in]]]: A 3D Numpy array representing the image sequence
-        It is important that this is a Numpy array and not a Python list
-        of Numpy matrices. The shape of img_arr_in is expected to be as
-        (num_images, num_pixel_rows, num_pixel_cols). Note, when
-        converting this to spatial coordinates, num_images is the
-        Z-component, num_pixel_rows is the Y-component, and
-        num_pixel_cols is the X-component. It is expected that the
-        images are single-channel, and the data should be of type uint8.
-        Specifically, intensities should range from 0 to 255. If it is
-        segmented (i.e., binarized), then only values of 0 and 255 
-        should be present (NOT 0 and 1).
-
-    radius: An integer representing the radius of the sphere to be 
-        extracted from the image sequence (in pixels) with respect to
-        the 3D center point of the image sequence. The default is to
-        extract the largest sphere possible, but an integer value less
-        than this can also be specified.
-
-    ---- RETURNED ----
-    [[[img_sphere]]]: A 3D Numpy array of the same size as img_arr_in
-        and of the same data type. Only pixels that were within the
-        spherical radius from img_arr_in were copied into img_sphere.
-
-    ---- SIDE EFFECTS ----
-    Function input arguments should not be altered. However, a new view
-    is created for img_arr_in, not a deep copy. So, this cannot be 
-    guaranteed. Nothing is written to the hard drive.
-    """
-
-    # Do NOT transpose here. My C-extension expects the image array
-    # in image coordinates, and will return it correctly in XYZ.
-    img_arr = img_arr_in
-
-    n_imgs = img_arr_in.shape[0]
-    n_rows = img_arr_in.shape[1]
-    n_cols = img_arr_in.shape[2]
-
-    if radius is None:
-        n_min = np.amin(img_arr_in.shape)
-        radius = np.floor(n_min/2.0) - 1
-        radius = radius.astype(np.uint32)
-
-    print("\nExtracting spherical subregion...")
-    img_sphere = im3.extract_sphere(img_arr, radius)
-    print("  Done!")
-
-    return img_sphere
 
 
 def line_fit_3d(pnts_in):
